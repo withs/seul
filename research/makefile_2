@@ -1,0 +1,31 @@
+.POSIX:
+.SUFFIXES:
+
+CC = clang
+CFLAGS = -g --target=${TARGET}
+LDFLAGS = -shared
+LDLIBS = 
+TARGET = aarch64-unknown-openbsd
+TARGET_NAME = libseul.a
+
+all: clean pre build/target/$(TARGET)/$(TARGET_NAME)
+
+build/target/$(TARGET)/$(TARGET_NAME): build/obj/arch.o build/obj/platform.o
+	$(AR) -rcs $@ $^
+build/obj/arch.o: src/arch/arch_none.c
+	$(CC) -c $(CFLAGS) $^ -o $@
+build/obj/platform.o: src/platform/platform_none.c
+	$(CC) -c $(CFLAGS) $^ -o $@
+
+.PHONY:clean
+clean:
+	rm -rf build
+
+.PHONY: pre
+pre:
+	mkdir -p build/obj
+	mkdir -p build/target/$(TARGET)
+
+.PHONY: playground
+playground: all 
+	$(CC) -L build/target/$(TARGET) -l seul -I include/ research/playground.c

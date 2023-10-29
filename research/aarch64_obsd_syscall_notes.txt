@@ -1,0 +1,18 @@
+https://stackoverflow.com/questions/45742869/linux-syscall-conventions-for-armv8
+https://github.com/openbsd/src/blob/f01bc68579a190a081697d1a9bc5ec9444d976ab/gnu/llvm/compiler-rt/lib/sanitizer_common/sanitizer_syscall_linux_aarch64.inc#L66
+https://github.com/openbsd/src/blob/92232a8c46189ba135e55a6830876e8001dff539/lib/csu/os-note-elf.h#L12
+
+
+clang -c n.s -o n.o && clang -nostdlib n.o -e _start -nostdlib -static -o n
+
+with -static it's still crash after the string printed (at the svc intr)
+
+https://lwn.net/Articles/806776/
+penbsd.org/msyscall.2#DESCRIPTION
+
+https://github.com/openbsd/src/blob/92232a8c46189ba135e55a6830876e8001dff539/sys/sys/syscall.h#L122
+
+	mov x8, #37
+	adr x0, _start 
+	mov x1, #0x100
+	svc #0

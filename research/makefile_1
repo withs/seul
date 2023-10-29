@@ -1,0 +1,33 @@
+.POSIX:
+.SUFFIXES:
+.PHONY: clean playground pre
+
+
+TARGET_TRIPLE := aarch64-unknown-openbsd
+TARGET_OUT := libseul.a
+BUILD_FOLDER = build
+OBJ_FOLDER = $(BUILD_FOLDER)/obj/$(TARGET_TRIPLE)
+OUT_FOLDER = $(BUILD_FOLDER)/target/$(TARGET_TRIPLE)
+
+CC = clang
+CFLAGS = -g --target=${TARGET_TRIPLE}
+
+all: pre $(OUT_FOLDER)/$(TARGET_OUT)
+
+$(OUT_FOLDER)/$(TARGET_OUT): $(OBJ_FOLDER)/arch.o $(OBJ_FOLDER)/platform.o
+	$(AR) -rcs $@ $^
+$(OBJ_FOLDER)/arch.o: src/arch/arch_none.c src/arch/arch_internal.h
+$(OBJ_FOLDER)/platform.o: src/platform/platform_none.c
+
+%.o %.c:
+	 $(CC) $(CFLAGS) -c $(filter %.c,$^) -o $@
+	
+clean:
+	rm -rf build
+
+pre:
+	mkdir -p ${OBJ_FOLDER}
+	mkdir -p $(OUT_FOLDER)
+
+playground: all 
+	$(CC) -L $(OUT_FOLDER) -l seul -I include/ research/playground.c -o $(OUT_FOLDER)/playground
