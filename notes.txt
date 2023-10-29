@@ -1,0 +1,92 @@
+seul
+====
+
+tools
+------
+
+- c@?
+- clang
+- make
+- helix
+- git
+
+milestone
+---------
+
+- projects setup
+ - folder
+ - git
+ - code style
+
+- basic ints
+- defines
+- syscall asm 
+ - default: x64
+ - planned: x86, arm64
+ - platforms: osx, windows, openbsd
+- sys mem alloc
+- io print
+- allocators
+- data structure: vec, array, str, str_view, string buffer etc
+
+ressources
+----------
+
+https://youtu.be/lMvFWKHhVZ0
+https://youtu.be/443UNeGrFoM
+https://www.youtube.com/watch?v=QpAhX-gsHMs&t=765s
+https://www.youtube.com/watch?v=lLv1s7rKeCM
+https://nullprogram.com/index/
+
+ideas
+-----
+
+it aim to be used as a base/replacement for C stdlib with more "modern" way to use c.
+it should be simple to add a new arch/platform for for desired features.
+tbh its what i like and how i like it ^^:w
+
+desired targets
+---------------
+
+aarch64-apple-darwin
+x86_64-apple-darwin 
+i686-pc-windows-msvc 
+x86_64-pc-windows-msvc
+aarch64-unknown-openbsd
+x86_64-unknown-openbsd
+
+project files
+-------------
+
+include/
+  seul/
+    arch.h // public export of funcs/defs in arch/*.c
+    ints.h
+    data_structures.h
+    allocators.h
+    
+src/
+  arch/
+    arch_x86.c // define syscall for x86 and wrapped arch specifics
+    arch_aarch64.c
+    arch_x64
+    arch_none.c // define an unimplemented arch which is the last to be imported if not supported arch
+    arch_internal.h // defines/defs/anything that need to be shared accros above c files and not publicly exported in include/arch.h
+  platform/
+    platform_windows.c
+    platfrom_darwin.c
+    platform_openbsd.c
+    platform_none.c
+    platform_internal.h
+  allocators/
+    arena.c
+    static.c
+    system.c
+  data_structures/
+    vec.c
+    array.c
+    str.c
+  io/
+    console.c
+    file.c
+    io_internal.h
