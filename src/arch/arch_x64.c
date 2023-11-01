@@ -1,6 +1,7 @@
 #include "arch_internal.h"
 #include "seul/ints.h"
 
+// TODO: add include guard for arch, and maybe platform too ?
 
 
 void* seul_arch_x64_read_gs(usize with_offset) {
@@ -17,6 +18,12 @@ void* seul_arch_x64_read_gs(usize with_offset) {
   return gs;
 }
 
+
+
+// NOTE: kinda hacky but seems to work even with optimisations -O3
+// it avoid the need of having multiple function to handle the numbers of args
+// it put the syscall number in r11 which is a volatile register and not used in args passing, im not passing to rax directly because rax is more subject to be used as a temp var in the process of arg passng 
+// IDEA: could save r11 on the stack and pop it a the end of nt_syscall, but not sure if its very usefull
 __attribute__((naked))
 void seul_arch_x64fastcall_syscall_set_call(usize with_number) {
 

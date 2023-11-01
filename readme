@@ -16,6 +16,9 @@ gmake all TARGET_TRIPLE="x86_64-unknown-openbsd"
 - build and link to research/playground.c, it can be used to quickly try a feature or develop.
 gmake playground
 
+- build for windows (temp)
+make -make -f win_makefile all/playground
+
 *artifacts should be present on ./target/<target-triple>/libseuil.a or ./target/<target-triple>/playground (yes it look kinda like rust but it look very sweet :] ) 
 *not all targets are implemented yet
 *if you are not using bsd use 'make' instead of 'gmake' or 'nmake' for windows (not tested)

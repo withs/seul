@@ -127,3 +127,10 @@ void _start(void) {
 + 0x40 -> plarge_integer byte offset
 + 0x48 -> pulon kye
 */
+
+// https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntwritefile
+// https://stackoverflow.com/questions/49947915/assembly-syscalls-in-64-bit-windows
+// https://learn.microsoft.com/en-us/cpp/build/x64-software-conventions?view=msvc-170
+// https://wiki.osdev.org/Inline_assembly/
+// https://csiflabs.cs.ucdavis.edu/~ssdavis/50/att-syntax.htm
+// https://www.geoffchappell.com/studies/windows/km/ntoskrnl/inc/api/pebteb/peb/index.htm

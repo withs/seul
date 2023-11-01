@@ -3,6 +3,9 @@
 
 #include "seul/ints.h"
 
+// TODO: add include guard for platform
+
+// NOTE: this is a small subset of peb below, i'll add more when i'll need it same for all the structs bellow
 struct seul_platform_windows_user_process_parameters_s {
 	u32 maximum_length;
 	u32 length;
