@@ -14,14 +14,16 @@ OBJ_FOLDER = $(BUILD_FOLDER)/$(TARGET_TRIPLE)/obj
 OUT_FOLDER = $(BUILD_FOLDER)/$(TARGET_TRIPLE)
 
 CC = clang-16
-CFLAGS = -g --target=${TARGET_TRIPLE}
+CFLAGS = -g --target=${TARGET_TRIPLE} -I include/
 
 all: pre $(OUT_FOLDER)/$(TARGET_OUT)
 
-$(OUT_FOLDER)/$(TARGET_OUT): $(OBJ_FOLDER)/arch.o $(OBJ_FOLDER)/platform.o
+$(OUT_FOLDER)/$(TARGET_OUT): $(OBJ_FOLDER)/arch.o $(OBJ_FOLDER)/platform.o $(OBJ_FOLDER)/arch_x64.o $(OBJ_FOLDER)/platform_windows.o
 	$(AR) -rcs $@ $^
 $(OBJ_FOLDER)/arch.o: src/arch/arch_none.c src/arch/arch_internal.h
+$(OBJ_FOLDER)/arch_x64.o: src/arch/arch_x64.c src/arch/arch_internal.h
 $(OBJ_FOLDER)/platform.o: src/platform/platform_none.c
+$(OBJ_FOLDER)/platform_windows.o: src/platform/platform_windows.c 
 
 %.o %.c:
 	 $(CC) $(CFLAGS) -c $(filter %.c,$^) -o $@

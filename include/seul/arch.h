@@ -21,11 +21,14 @@ enum arch_e {
 	#define __target_arch ((enum arch_e)arch_none)
 #endif
 
+
 void seul_arch_none(void);
 
 
+#if __target_x64
 void* seul_arch_x64_read_gs(usize with_offset);
 void seul_arch_x64fastcall_syscall_set_call(usize with_number);
 void seul_arch_x64fastcall_syscall(void* _first, ...);
+#endif
 
 #endif

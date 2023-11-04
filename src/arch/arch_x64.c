@@ -1,8 +1,10 @@
 #include "arch_internal.h"
+#include "seul/defines.h"
 #include "seul/ints.h"
 
 // TODO: add include guard for arch, and maybe platform too ?
 
+#if __target_x64
 
 void* seul_arch_x64_read_gs(usize with_offset) {
 
@@ -49,3 +51,5 @@ void seul_arch_x64fastcall_syscall(void* _first, ...) {
     : "r10"
   ); 
 }
+
+#endif
