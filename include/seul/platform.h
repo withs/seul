@@ -21,7 +21,6 @@ enum platform_e {
 	#define __target_platform ((enum platform_e)platform_none)
 #endif
 
-// TODO: add include guard for platform
 #if __target_windows
 // NOTE: this is a small subset of peb below, i'll add more when i'll need it same for all the structs bellow
 struct seul_platform_windows_user_process_parameters_s {
@@ -49,6 +48,14 @@ struct seul_platform_windows_process_environment_block_s {
 };
 
 struct seul_platform_windows_process_environment_block_s* seul_platform_windows_get_peb();
+
+//i32 seul_platform_windows_syscall(usize syscall_number, usize a, usize b, usize c, usize d, usize e, usize f, usize g, usize h, usize i);
+i32 seul_platform_windows_syscall(usize syscall_number, ...);
+#endif
+
+
+#if __target_openbsd
+i32 seul_platform_openbsd_syscall(usize syscall_number, ...);
 #endif
 
 #endif
