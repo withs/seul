@@ -55,7 +55,7 @@ i32 seul_platform_windows_syscall(usize syscall_number, ...);
 
 
 #if __target_openbsd
-i32 seul_platform_openbsd_syscall(usize syscall_number, ...);
+usize seul_platform_openbsd_syscall(usize syscall_number, ...);
 #endif
 
 // NOTE: platform generic defs

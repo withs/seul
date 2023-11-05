@@ -14,7 +14,7 @@ OBJ_FOLDER = $(BUILD_FOLDER)/$(TARGET_TRIPLE)/obj
 OUT_FOLDER = $(BUILD_FOLDER)/$(TARGET_TRIPLE)
 
 CC = clang
-CFLAGS = -Os --target=${TARGET_TRIPLE} -I include/
+CFLAGS = -g3 --target=${TARGET_TRIPLE} -I include/
 
 all: pre $(OUT_FOLDER)/$(TARGET_OUT)
 

@@ -22,10 +22,10 @@ __asm__ (
 // so we still link with nostdlib but we link with a fake ld.so containing syscall(2), it allow to have "acces" to the syscall(2) without having the whole libc.so
 // https://lwn.net/Articles/806776/
 // it work on all x64 and aarch64
-extern i32 syscall(i32 syscall_number);
+extern usize syscall(i32 syscall_number);
 
 // NOTE: not very sure about that, it's used as ans alias, tried in -g3 and -O3 with both working
-int seul_platform_openbsd_syscall(i32 syscall_number, ...) {
+usize seul_platform_openbsd_syscall(i32 syscall_number, ...) {
 	return syscall(syscall_number);
 }
 
