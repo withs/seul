@@ -58,4 +58,8 @@ i32 seul_platform_windows_syscall(usize syscall_number, ...);
 i32 seul_platform_openbsd_syscall(usize syscall_number, ...);
 #endif
 
+// NOTE: platform generic defs
+i32 seul_platform_write(void* to_fd, void* from_buff, usize with_len);
+void seul_platform_exit(i32 with_code);
+
 #endif
