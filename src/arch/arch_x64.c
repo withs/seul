@@ -42,7 +42,8 @@ i32 seul_arch_x64fastcall_syscall(usize number, ...) {
     "movq %%rcx, %%rax\n\t" // load syscall number,
 
     // TEST: to try, it seems that rcx replace r10 for syscalls ? since when ? maybe be its my aarch64 windows vm ?
-    // "movq %%rdx, %%r10\n\t"
+    // NOTE: on a pure x64 machine first args goes in r10 and on an aarch64 with x64 emulation first arg go into rcx
+    "movq %%rdx, %%r10\n\t"
     "movq %%rdx, %%rcx\n\t"
     "movq %%r8, %%rdx\n\t"
     "movq %%r9, %%r8\n\t"
