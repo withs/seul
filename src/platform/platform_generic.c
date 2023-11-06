@@ -56,6 +56,7 @@ void* memset(void* a, i32 b, isize c) {}
 // NOTE: by default alloc flags are PRIVATE | ANON for openbsd and RESERVE | COMMIT for windows
 // TODO: add if flags or prot ! 0 in args to overwrite default flags
 // FIXME: check openbsd on x86_64 because on an aarch64 one i can't alloc anything tried different prot, flags etc silk get errno 22, windows work tho
+// NOTE: fault was fd flags not set on -1, should have look use of mmap in openbsd srcs earlier..
 struct seul_allocator_mem_alloc_optional_s seul_platform_alloc_virtual_memory(void* att_address, isize of_size, enum seul_allocator_os_proctection_e has_protection) {
 
 	struct seul_allocator_mem_alloc_optional_s probably_allocated_buff = (struct seul_allocator_mem_alloc_optional_s){ 
@@ -81,7 +82,7 @@ struct seul_allocator_mem_alloc_optional_s seul_platform_alloc_virtual_memory(vo
 	#endif
 
 	#if __target_openbsd
-	probably_allocated_buff.address = (void*)seul_platform_openbsd_syscall(0x31, att_address, of_size, (i32)has_protection, (i32)(0x1 | 0x1000), 0, 0);
+	probably_allocated_buff.address = (void*)seul_platform_openbsd_syscall(0x31, att_address, of_size, (i32)has_protection, (i32)(0x1 | 0x1000), (i32)-1, 0);
 
 	if ( (usize)probably_allocated_buff.address == -1 ) {
 		probably_allocated_buff.state = saor_err;
