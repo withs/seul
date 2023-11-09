@@ -70,7 +70,7 @@ int _start() {
 	seul_platform_write(stdout, ":)\n", 3);
 
 
-	struct seul_allocator_mem_alloc_optional_s r = seul_platform_alloc_virtual_memory(0, 5000, saop_read | saop_write);
+	struct seul_allocator_mem_alloc_optional_s r = seul_platform_alloc_virtual_memory(0, 10, saop_read | saop_write);
 	if (r.state == saor_ok) {
 		seul_platform_write(stdout, "yes\n", 4);
 	} else {
@@ -78,7 +78,7 @@ int _start() {
 	}
 
 	*(u8*)(r.address) = 123;
-	print_uint_as_hex((usize)r.address, seul_size_of(void*)*2);
+	print_uint_as_hex((usize)r.size, seul_size_of(void*)*2);
 
 	seul_platform_exit(0);
 	return 1;

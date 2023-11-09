@@ -1,7 +1,7 @@
 __c_flags="-g2 --target=x86_64-windows-msvc -nostdlib -ffreestanding"
 __build_obj="./target/x86_64-windows-msvc/obj"
 __build_out="./target/x86_64-windows-msvc"
-__cc="clang-16"
+__cc="clang"
 
 mkdir -p $__build_obj
 $__cc $__c_flags -c ./src/platform/platform_windows.c -I include -o $__build_obj/platform.o                                                

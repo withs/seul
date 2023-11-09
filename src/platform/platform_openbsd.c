@@ -1,8 +1,6 @@
 #include "seul/defines.h"
 #include "seul/ints.h"
 
-#include "stdarg.h"
-
 #if __target_openbsd
 
 // NOTE: when linking with nostdlib clang omit the openbsd signature (i guess that this is located inside the crt)

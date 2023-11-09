@@ -1,42 +1,48 @@
 .POSIX:
-.SUFFIXES:
-.PHONY: clean playground pre
 
-# yes it's weird ^^, it miss the prod/debug
-# to add new components:
-# $(OBJ_FOLDER)/comp.o: source_files.c
-# and add $(OBJ_FOLDER)/comp.o to $(OUT_FOLDER)/$(TARGET_OUT): $(OBJ_FOLDER)/comp.o:
+#TARGET_TRIPLET = x86_64-unknown-openbsd
+TARGET_TRIPLET = aarch64-unknown-openbsd
+#ARGET_TRIPLET = x86_64-windows-msvc
 
-TARGET_TRIPLE := aarch64-unknown-openbsd
-TARGET_OUT := libseul.a
-BUILD_FOLDER = target
-OBJ_FOLDER = $(BUILD_FOLDER)/$(TARGET_TRIPLE)/obj
-OUT_FOLDER = $(BUILD_FOLDER)/$(TARGET_TRIPLE)
-
+# CC = clang-16
 CC = clang
-CFLAGS = -g3 --target=${TARGET_TRIPLE} -I include/
+LD = lld
+AR = ar
 
-all: pre $(OUT_FOLDER)/$(TARGET_OUT)
+BUILD_FOLDER = target
+BUILD_OBJS = $(BUILD_FOLDER)/$(TARGET_TRIPLET)/objs
+BUILD_OUT = $(BUILD_FOLDER)/$(TARGET_TRIPLET)
 
-$(OUT_FOLDER)/$(TARGET_OUT): $(OBJ_FOLDER)/arch.o $(OBJ_FOLDER)/platform.o $(OBJ_FOLDER)/arch_x64.o $(OBJ_FOLDER)/platform_windows.o $(OBJ_FOLDER)/platform_openbsd.o $(OBJ_FOLDER)/platform_generic.o
-	$(AR) -rcs $@ $^
-$(OBJ_FOLDER)/arch.o: src/arch/arch_none.c src/arch/arch_internal.h
-$(OBJ_FOLDER)/arch_x64.o: src/arch/arch_x64.c src/arch/arch_internal.h
-$(OBJ_FOLDER)/platform.o: src/platform/platform_none.c
-$(OBJ_FOLDER)/platform_windows.o: src/platform/platform_windows.c 
-$(OBJ_FOLDER)/platform_openbsd.o: src/platform/platform_openbsd.c 
-$(OBJ_FOLDER)/platform_generic.o: src/platform/platform_generic.c 
+include make/$(TARGET_TRIPLET).mk
 
-%.o %.c:
-	 $(CC) $(CFLAGS) -c $(filter %.c,$^) -o $@
+# shared flags
+CFLAGS += -nostdlib -ffreestanding -fuse-ld=$(LD)
+CFLAGS += $(foreach inc, $(INCLUDES), -I $(inc)) 
+CFLAGS += $(foreach lib_search, $(LIBS_SEARCH), -L $(lib_search)) 
+CFLAGS += $(foreach lib, $(LIBS), -l $(lib)) --target=$(TARGET_TRIPLET)
 	
+SRCS = src/platform/platform_none.c src/platform/platform_windows.c \
+		src/platform/platform_openbsd.c src/platform/platform_generic.c \
+		src/arch/arch_none.c src/arch/arch_x64.c
+		
+OBJS = $(patsubst %.c, %.o, $(SRCS))
+
+all: build_setup $(BUILD_OUT)/libseul$(LIB_EXT)
+playground: all platform_deps $(BUILD_OUT)/playground$(EXE_EXT)
+
+$(BUILD_OUT)/playground$(EXE_EXT): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) research/generic_playground.c $(BUILD_OBJS)/*.o -o $@
+
+$(BUILD_OUT)/libseul$(LIB_EXT): $(OBJS)
+	$(AR) -rcs $@ $(BUILD_OBJS)/*.o
+
+build_setup:
+	mkdir -p $(BUILD_OBJS)
+
 clean:
-	rm -rf $(BUILD_FOLDER)
+	rm -rf target
 
-pre:
-	mkdir -p ${OBJ_FOLDER}
-	mkdir -p $(OUT_FOLDER)
+%.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $(BUILD_OBJS)/$(notdir $@)
 
-playground: all 
-	$(CC) $(CFLAGS) -I include/ -c research/generic_playground.c -o $(OUT_FOLDER)/playground.o
-	ld.lld -dynamic-linker /usr/libexec/ld.so -nostdlib -L./research/openbsd_libc_syscall -lc -L $(OUT_FOLDER) -l seul $(OUT_FOLDER)/playground.o -o $(OUT_FOLDER)/playground
+.PHONY: all build_setup clean playground
