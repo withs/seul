@@ -29,7 +29,7 @@ struct seul_platform_windows_process_environment_block_s* seul_platform_windows_
 __attribute__((naked))
 i32 seul_platform_windows_syscall(usize syscall_number, ...){
 	#if __arch_x64
-	asm volatile (
+	__asm__ volatile (
 		"jmp seul_arch_x64fastcall_syscall\n\t"
 		"ret\n\t"
 	); 
