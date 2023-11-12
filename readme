@@ -1,9 +1,8 @@
 [-] seul
 
-seul is a set of headers and a lib that can be used as a base for new project (mostly my projects ^^).
+seul is a set of headers and a lib that can be used as a base for new project (my projects ^^).
 it's goal it's at term to not rely on system libs and stdlib for its core component (freestanding build with nostdlib).
-cross platform, cross compile and simplicity.
-+ the most important part it's main goal to to learn and touch many aspect of system and programing in general.
+cross platform, cross compile and simplicity.the most important part is to allow me to learn and touch many aspect of system and programing in general.
 
 *this project is on an early stage, not all platforms/archs are implemented, and very few features are implemented too
 
@@ -11,15 +10,21 @@ cross platform, cross compile and simplicity.
 
 - build for current platform/arch.
 gmake all
-- build for another platform/arch, (see notes.txt to see supported targets).
-gmake all TARGET_TRIPLE="x86_64-unknown-openbsd"
+- build for another platform/arch, (see bellow to see supported targets).
+gmake all TARGET_TRIPLET="x86_64-unknown-openbsd"
 - build and link to research/playground.c, it can be used to quickly try a feature or develop.
 gmake playground
 
-- build for windows (temp)
-make -make -f win_makefile all/playground
-
 *artifacts should be present on ./target/<target-triple>/libseuil.a or ./target/<target-triple>/playground (yes it look kinda like rust but it look very sweet :] ) 
 *not all targets are implemented yet
-*if you are not using bsd use 'make' instead of 'gmake' or 'nmake' for windows (not tested)
+*if you are not using bsd use 'make' instead of 'gmake' or 'nmake', use make from unxtools on windows
 *header only build is planned
+
+[-] target arch/platform status
+
+x86_64-unknown-openbsd   | full
+aarch64-unknown-openbsd  | full
+x86_64-windows-msvc      | full
+aarch64-macos-darwin     | planned
+x86_64-macos-darwin      | planned
+i686-windows-msvc        | ?
