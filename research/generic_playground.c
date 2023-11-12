@@ -2,31 +2,26 @@
 #include "seul/macro.h"
 #include "seul/ints.h"
 #include "seul/allocators.h"
-
+#include "seul/data_structures.h"
+#include "seul/mem.h"
+#include "seul/io.h"
 
 void* stdout = (void*)1;
 
-struct cool_s {
-	i32 a;
-	void* c;
-	i32 b;
-};
-
-
-// NOTE: this code run on both open bsd and windows
-
-
 struct res_s {
-	u8 res[64];
-	u8 len;
+	u8 _buff[64];
+	struct seul_ds_string_view_s view;
 };
 // NOTE: just testing, not real impl
-struct res_s print_uint_as_hex(usize a, u8 len) {
+struct res_s nibble_to_hex(usize a, u8 len) {
 
-	struct res_s r = (struct res_s){ 0 };
+	struct res_s r = (struct res_s){ .view = {
+		.str = &r._buff,
+		.length = 2,
+	}};
 
-	r.res[0] = '0';
-	r.res[1] = 'x';
+	r._buff[0] = '0';
+	r._buff[1] = 'x';
 
 	for (i8 gro = 0; gro < len ; gro ++ ) {
 
@@ -41,45 +36,35 @@ struct res_s print_uint_as_hex(usize a, u8 len) {
 		}
 
 		u8 cha = assci_base+group;
-		r.res[(len+1)-gro] = cha;
-		
+		r._buff[(len+1)-gro] = cha;
+		r.view.length += 1;
 	}
 
-	seul_platform_write(stdout, &r.res, len+2);
-	seul_platform_write(stdout, "\n", 1);
+	r._buff[r.view.length + 1] = '\n';
+	r.view.length += 2;
 	
 	return r;
 };
 
 int _start() {
 
+	u8 hello_text[] = "hello from seul";
+	seul_io_stdout_print(seul_ds_string_view_from_ptr((u8*)hello_text, seul_size_of(hello_text)));
+	
+	seul_io_stdout_print(seul_ds_string_view_from_ptr("\n", 1));
 
-	// struct cool_s cool = (struct cool_s){.a = 1, .b = 2};
-	// isize a = seul_offset_of_struct(cool_s, b);
+	struct seul_io_nibbles_to_str_result_s nib = seul_io_nibbles_to_hex_string(0xFF1133, 6);
+	seul_io_stdout_print(nib.view);
+	seul_io_stdout_print(seul_ds_string_view_from_ptr("\n", 1));
 
-	// isize b = seul_count_of_static_array( (i32[10]){} );
+	struct seul_allocator_mem_alloc_optional_s m = seul_platform_alloc_virtual_memory((void*)0, 0x40, saop_read | saop_write);
+	seul_io_stdout_print(seul_io_nibbles_to_hex_string((usize)m.view.data, seul_size_of(void*)*2).view);
+	seul_io_stdout_print(seul_ds_string_view_from_ptr("\n", 1));
+	seul_io_stdout_print(seul_io_nibbles_to_hex_string((usize)m.view.length, seul_size_of(void*)*2).view);
 
-	const char* text = "hello_openbsd\n";
+	seul_platform_release_virtual_memory(m.view);
 
-	#if __target_windows	
-	stdout = seul_platform_windows_get_peb()->process_parameters->standard_output;
-	text = "hello_windows\n";
-	#endif
-
-	seul_platform_write(stdout, text, 14);
-	seul_platform_write(stdout, ":)\n", 3);
-
-
-	struct seul_allocator_mem_alloc_optional_s r = seul_platform_alloc_virtual_memory(0, 10, saop_read | saop_write);
-	if (r.state == saor_ok) {
-		seul_platform_write(stdout, "yes\n", 4);
-	} else {
-		seul_platform_write(stdout, "no\n", 3);
-	}
-
-	*(u8*)(r.address) = 123;
-	print_uint_as_hex((usize)r.size, seul_size_of(void*)*2);
-
+	
 	seul_platform_exit(0);
 	return 1;
 }
