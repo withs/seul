@@ -3,6 +3,7 @@
 
 #include "seul/ints.h"
 #include "seul/defines.h"
+#include "seul/data_structures.h"
 
 enum platform_e {
 	platform_nonen,
@@ -59,7 +60,7 @@ usize seul_platform_openbsd_syscall(usize syscall_number, ...);
 #endif
 
 // NOTE: platform generic defs
-i32 seul_platform_write(void* to_fd, void* from_buff, usize with_len);
+i32 seul_platform_write(void* to_fd, struct seul_ds_string_view_s from_view);
 void seul_platform_exit(i32 with_code);
 
 #endif

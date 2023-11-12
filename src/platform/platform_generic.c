@@ -4,19 +4,21 @@
 #include "seul/platform.h"
 #include "seul/allocators.h"
 
-i32 seul_platform_write(void* to_fd, void* from_buff, usize with_len) {
+// NOTE: not sure if i should use a string/array view atm im only using for stdout bug later ?
+// maybe i soulg create an interface struct for view
+i32 seul_platform_write(void* to_fd, struct seul_ds_string_view_s from_view) {
 
 	#if __target_windows
 
 	u8 out_isb[0x10];
 
-	return seul_platform_windows_syscall(8, to_fd, 0, 0, 0, out_isb, from_buff, with_len, 0, 0);
+	return seul_platform_windows_syscall(8, to_fd, 0, 0, 0, out_isb, from_view.str, from_view.length, 0, 0);
 	
 	#endif
 
 	#if __target_openbsd
 
-	return seul_platform_openbsd_syscall(4, to_fd, from_buff, with_len);
+	return seul_platform_openbsd_syscall(4, to_fd, from_view.str, from_view.length);
 	
 	#endif
 	
@@ -47,12 +49,6 @@ i32 seul_platfom_windows_mem_protection_translate(i32 from_unix) {
 	return windows_eq_prot;
 }
 
-
-// FIXME: tmp decl to make lld happy
-void* memset(void* a, i32 b, isize c) {}
-
-
-
 // NOTE: by default alloc flags are PRIVATE | ANON for openbsd and RESERVE | COMMIT for windows
 // TODO: add if flags or prot ! 0 in args to overwrite default flags
 // FIXME: check openbsd on x86_64 because on an aarch64 one i can't alloc anything tried different prot, flags etc silk get errno 22, windows work tho
@@ -61,8 +57,6 @@ struct seul_allocator_mem_alloc_optional_s seul_platform_alloc_virtual_memory(vo
 
 	struct seul_allocator_mem_alloc_optional_s probably_allocated_buff = (struct seul_allocator_mem_alloc_optional_s){ 
 		.state = saor_ok,
-		.address = 0,
-		.size = 0,
 	};
 
 	#if __target_windows
@@ -77,21 +71,41 @@ struct seul_allocator_mem_alloc_optional_s seul_platform_alloc_virtual_memory(vo
 		return probably_allocated_buff;
 	}
 		
-	probably_allocated_buff.address = in_out_address;
-	probably_allocated_buff.size = in_out_size;
+	probably_allocated_buff.view.data = in_out_address;
+	probably_allocated_buff.view.length = in_out_size;
 	#endif
 
 	#if __target_openbsd
-	probably_allocated_buff.address = (void*)seul_platform_openbsd_syscall(0x31, att_address, of_size, (i32)has_protection, (i32)(0x1 | 0x1000), (i32)-1, 0);
+	probably_allocated_buff.view.data = (void*)seul_platform_openbsd_syscall(0x31, att_address, of_size, (i32)has_protection, (i32)(0x1 | 0x1000), (i32)-1, 0);
 
-	if ( (usize)probably_allocated_buff.address == -1 ) {
+	if ( (usize)probably_allocated_buff.view.data == -1 ) {
 		probably_allocated_buff.state = saor_err;
 		return probably_allocated_buff;		
 	}
 	
-	probably_allocated_buff.size = of_size;
+	probably_allocated_buff.view.length = of_size;
 	#endif
 
 	return probably_allocated_buff;
 	
+}
+
+// NOTE: for windows since we allocated with reserve|commit above we can directly use MEM_RELEASE as FreeType param
+// FIXME: if windows syscall don't have stack args it make the program crash (no return address)
+enum seul_allocator_os_result_s seul_platform_release_virtual_memory(struct seul_ds_array_view_s from_view) {
+
+	#if __target_windows
+	i32 nt_status = seul_platform_windows_syscall(0x1e, (usize)-1, &from_view.data, &from_view.length, (usize)0x8000, 0, 0);
+	if ( nt_status != 0 ) {
+		return saor_err;
+	}
+	#endif
+
+	#if __target_openbsd
+	i32 err = seul_platform_openbsd_syscall(0x49, from_view.data, from_view.length);
+	if ( err != 0 ) {
+		return saor_err;
+	}
+	#endif
+	return saor_ok;
 }
